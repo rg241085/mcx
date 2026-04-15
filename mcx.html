@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ffffff">
+    <title>MCX Pro Terminal | Google Minimalist</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2933/2933116.png">
+    <style>
+        /* === GOOGLE MINIMALIST COLOR PALETTE === */
+        :root {
+            --bg-main: #f8f9fa;
+            /* Google Light Gray background */
+            --bg-card: #ffffff;
+            --text-main: #202124;
+            /* Google Dark Text */
+            --text-muted: #5f6368;
+            /* Google Gray Text */
+
+            /* Professional Colors */
+            --primary: #1a73e8;
+            /* Google Blue */
+            --success: #1e8e3e;
+            /* Google Green */
+            --danger: #d93025;
+            /* Google Red */
+            --warning: #f9ab00;
+            /* Google Yellow */
+
+            --border: #dadce0;
+            /* Google Light Border */
+            --shadow-sm: 0 1px 2px 0 rgba(60, 64, 67, .3), 0 1px 3px 1px rgba(60, 64, 67, .15);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+
+            --radius-md: 8px;
+            --radius-lg: 8px;
+            /* Google uses slightly less rounded corners */
+        }
+
+        /* === Global Reset & Typography === */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Roboto, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            -webkit-tap-highlight-color: transparent;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding-bottom: 40px;
+        }
+
+        /* Typography */
+        h2 {
+            font-size: 22px;
+            font-weight: 400;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        h3 {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-main);
+            margin-top: 10px;
+        }
+
+        .num {
+            font-variant-numeric: tabular-nums;
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 500;
+        }
+
+        /* === Dashboard Cards (Simple White) === */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .dash-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: var(--radius-lg);
+            box-shadow: none;
+            /* Flat look */
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: box-shadow 0.2s;
+        }
+
+        .dash-card:hover {
+            box-shadow: var(--shadow-sm);
+        }
+
+        .dash-card span {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 8px;
+        }
+
+        .dash-card strong {
+            font-size: 24px;
+            font-weight: 400;
+            color: var(--text-main);
+        }
+
+        /* Dynamic value colors - only numbers, not backgrounds */
+        .val-positive {
+            color: var(--success) !important;
+            font-weight: 500 !important;
+        }
+
+        .val-negative {
+            color: var(--danger) !important;
+            font-weight: 500 !important;
+        }
+
+        /* Available Balance Specific */
+        #dashBalanceCard.balance-negative {
+            border-left: 4px solid var(--danger);
+        }
+
+        #dashBalanceCard.balance-negative strong {
+            color: var(--danger);
+        }
+
+        /* === Action Bar (Clean) === */
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            background: white;
+            padding: 12px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 4px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+            min-height: 40px;
+            outline: none;
+        }
+
+        .btn:active {
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1967d2;
+            box-shadow: 0 1px 2px 0 rgba(66, 133, 244, .3), 0 1px 3px 1px rgba(66, 133, 244, .15);
+        }
+
+        .btn-outline {
+            background: white;
+            border-color: var(--border);
+            color: var(--text-muted);
+        }
+
+        .btn-outline:hover {
+            background: #f8f9fa;
+            color: var(--text-main);
+            border-color: #cdd0d4;
+        }
+
+        .btn-outline-danger {
+            background: white;
+            border-color: #fce8e6;
+            color: var(--danger);
+        }
+
+        .btn-outline-danger:hover {
+            background: #fce8e6;
+            border-color: #f9cbcb;
+        }
+
+        /* === Forms & Inputs (Google Style) === */
+        .form-group {
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .flex-row {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .flex-row>* {
+            flex: 1;
+            min-width: 0;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 14px;
+            font-weight: 400;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: white;
+            color: var(--text-main);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            box-sizing: border-box;
+            height: 40px;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 1px var(--primary);
+        }
+
+        .smart-date {
+            background: #fffcf0;
+            border-color: #fde293;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .smart-date:focus {
+            border-color: var(--warning);
+            box-shadow: 0 0 0 1px var(--warning);
+        }
+
+        .cmp-input {
+            width: 100px !important;
+            padding: 6px;
+            text-align: center;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text-main);
+            font-weight: 500;
+            border-radius: 4px;
+            height: 32px;
+            font-size: 13px;
+        }
+
+        .cmp-input:focus {
+            border-color: var(--primary);
+        }
+
+        /* === Tables (Sober Style) === */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            margin-top: 35px;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            background: white;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap;
+        }
+
+        th,
+        td {
+            padding: 14px 16px;
+            text-align: right;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        th {
+            background: #f8f9fa;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.8px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th:nth-child(1),
+        td:nth-child(1),
+        th:nth-child(2),
+        td:nth-child(2),
+        th:nth-child(3),
+        td:nth-child(3) {
+            text-align: left;
+        }
+
+        tbody tr:hover {
+            background: #fcfcfc;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Badges & Indicators (Sober Outlined Style) */
+        .badge {
+            padding: 3px 8px;
+            border-radius: 2px;
+            font-size: 11px;
+            font-weight: 500;
+            display: inline-block;
+            border: 1px solid transparent;
+        }
+
+        .bg-buy {
+            background: #e6f4ea;
+            color: var(--success);
+            border-color: #c3e6cb;
+        }
+
+        .bg-sell {
+            background: #fce8e6;
+            color: var(--danger);
+            border-color: #fad2cf;
+        }
+
+        .badge-avg {
+            background: #fffcf0;
+            color: #713f12;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-top: 6px;
+            border: 1px solid #fde293;
+            font-weight: 500;
+        }
+
+        .text-green {
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        .text-red {
+            color: var(--danger);
+            font-weight: 500;
+        }
+
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: var(--primary);
+            margin: 0;
+        }
+
+        /* === Modals (Google Simple Style) === */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(32, 33, 36, 0.6);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal.show {
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 480px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 0;
+            box-shadow: var(--shadow-md);
+            transform: translateY(-20px);
+            transition: transform 0.2s ease-out;
+            border: 1px solid var(--border);
+        }
+
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 400;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: background 0.2s;
+        }
+
+        .close-btn:hover {
+            background: #f1f3f4;
+            color: var(--danger);
+        }
+
+        /* === Toast Notification System === */
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: #323232;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 400;
+            box-shadow: 0 3px 5px -1px rgba(0, 0, 0, .2), 0 6px 10px 0 rgba(0, 0, 0, .14), 0 1px 18px 0 rgba(0, 0, 0, .12);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 288px;
+            max-width: 568px;
+            animation: slideInLeft 0.3s ease forwards;
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+
+        /* === Responsive adjustments === */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .dashboard {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+
+            .dash-card {
+                padding: 15px;
+            }
+
+            .dash-card strong {
+                font-size: 20px;
+            }
+
+            .action-bar {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                padding: 10px;
+            }
+
+            .btn {
+                width: 100%;
+                padding: 10px;
+                font-size: 13px;
+                min-height: 40px;
+                flex-direction: row;
+            }
+
+            th,
+            td {
+                padding: 12px 10px;
+                font-size: 12px;
+            }
+
+            .badge {
+                font-size: 10px;
+                padding: 3px 6px;
+            }
+
+            .cmp-input {
+                width: 75px !important;
+            }
+
+            .modal {
+                align-items: flex-end;
+                padding: 0;
+            }
+
+            .modal-content {
+                border-radius: 16px 16px 0 0;
+                max-height: 88vh;
+                transform: translateY(100%);
+                transition: transform 0.2s ease-out;
+            }
+
+            .modal.show .modal-content {
+                transform: translateY(0);
+            }
+
+            .flex-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .section-header .btn {
+                width: 100%;
+                flex-direction: row;
+                min-height: 36px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>
+            <span style="font-size: 26px; color: var(--primary);">📈</span> MCX Pro Terminal
+        </h2>
+
+        <div class="dashboard">
+            <div class="dash-card" id="cardNetPL">
+                <span>Net Realized P&L</span>
+                <strong id="dashNetPL" class="num">₹ 0</strong>
+            </div>
+            <div class="dash-card">
+                <span>Total Brokerage</span>
+                <strong id="dashBrokerage" class="num text-red" style="font-weight: 400; opacity: 0.8;">₹ 0</strong>
+            </div>
+            <div class="dash-card">
+                <span>Net Cash Added</span>
+                <strong id="dashNetFunds" class="num">₹ 0</strong>
+            </div>
+            <div class="dash-card" id="dashBalanceCard">
+                <span>Available Balance</span>
+                <strong id="dashBalance" class="num">₹ 0</strong>
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <button class="btn btn-primary" onclick="openModal('newTradeModal', 'Buy')" title="Shortcut: +">
+                <span style="font-size: 16px;">+</span> Open Trade
+            </button>
+            <button class="btn btn-outline" onclick="openModal('cashModal')">
+                💵 Cash Book
+            </button>
+            <button class="btn btn-outline" onclick="openModal('masterModal')">
+                ⚙️ Master Data
+            </button>
+            <button class="btn btn-outline-danger" onclick="clearAllData()">
+                ⚠️ Reset App
+            </button>
+        </div>
+
+        <div class="section-header">
+            <h3 class="text-green" style="font-weight: 500;">🟢 Open Positions (Live M2M)</h3>
+            <button class="btn btn-outline btn-trade" style="min-height: 32px; padding: 6px 12px; font-size: 12px;"
+                onclick="openBulkCloseModal()">☑ Close Selected</button>
+        </div>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 40px; text-align: center;"><input type="checkbox" id="selectAllOpen"
+                                onchange="toggleAllOpen(this)"></th>
+                        <th>Date</th>
+                        <th>Product</th>
+                        <th>Entry Rate</th>
+                        <th>Live Rate</th>
+                        <th>M2M P&L</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="openTradesBody"></tbody>
+            </table>
+        </div>
+
+        <div class="section-header">
+            <h3 style="color: var(--text-muted); font-weight: 500;">🔴 Trade History (Closed)</h3>
+        </div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date (In-Out)</th>
+                        <th>Product</th>
+                        <th>Entry ₹</th>
+                        <th>Exit ₹</th>
+                        <th>Gross</th>
+                        <th>Brokerage</th>
+                        <th>Net P&L</th>
+                    </tr>
+                </thead>
+                <tbody id="closedTradesBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <div class="modal" id="newTradeModal" onclick="closeOnBackdrop(event, this)">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Open New Position</h3>
+                <button class="close-btn" onclick="closeModal('newTradeModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="openTradeForm">
+                    <div class="form-group">
+                        <label class="form-label">Trade Date</label>
+                        <input type="text" id="openDate" inputmode="numeric" class="smart-date" placeholder="DD/MM/YYYY"
+                            required autocomplete="off">
+                    </div>
+                    <div class="flex-row">
+                        <div style="flex: 0.5;">
+                            <label class="form-label">Type</label>
+                            <select id="openType" required style="font-weight: 500;">
+                                <option value="Buy">Buy (Long)</option>
+                                <option value="Sell">Sell (Short)</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1;">
+                            <label class="form-label">Commodity</label>
+                            <select id="tradeCommodity" required></select>
+                        </div>
+                    </div>
+                    <div class="flex-row">
+                        <div style="flex: 0.5;">
+                            <label class="form-label">Quantity (Lots)</label>
+                            <input type="number" inputmode="decimal" id="tradeLots" required step="any" placeholder="0">
+                        </div>
+                        <div style="flex: 1;">
+                            <label class="form-label">Entry Price (₹)</label>
+                            <input type="number" inputmode="decimal" id="openPrice" required step="any"
+                                placeholder="0.00">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary"
+                        style="width: 100%; margin-top: 10px; font-size: 14px;">Confirm Trade</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="cashModal" onclick="closeOnBackdrop(event, this)">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Cash Book Ledger</h3>
+                <button class="close-btn" onclick="closeModal('cashModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="cashForm"
+                    style="background:#f8f9fa; padding:15px; border-radius:8px; border:1px solid var(--border); margin-bottom:15px;">
+                    <div class="flex-row">
+                        <div style="flex:1;">
+                            <label class="form-label">Date</label>
+                            <input type="text" inputmode="numeric" id="cashDate" class="smart-date"
+                                placeholder="DD/MM/YYYY" required>
+                        </div>
+                        <div style="flex:1;">
+                            <label class="form-label">Type</label>
+                            <select id="cashType" required style="font-weight: 500;">
+                                <option value="Deposit">Deposit (+)</option>
+                                <option value="Withdraw">Withdraw (-)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Amount (₹)</label>
+                        <input type="number" inputmode="decimal" id="cashAmount" placeholder="Enter Amount" required
+                            step="any">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Remark (Optional)</label>
+                        <input type="text" id="cashRemark" placeholder="e.g. Bank Transfer" autocomplete="off">
+                    </div>
+                    <button type="submit" class="btn btn-outline"
+                        style="width: 100%; border-color: var(--border); background:white;">Add Entry</button>
+                </form>
+                <div class="table-responsive" style="max-height: 200px; margin-bottom: 0;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="text-align:left;">Date</th>
+                                <th>Type</th>
+                                <th>Amount ₹</th>
+                                <th style="text-align:center;">Del</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cashTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="masterModal" onclick="closeOnBackdrop(event, this)">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Master Data Settings</h3>
+                <button class="close-btn" onclick="closeModal('masterModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="masterForm" style="margin-bottom: 15px;">
+                    <div class="form-group">
+                        <label class="form-label">Commodity Name</label>
+                        <input type="text" id="commName" placeholder="e.g. Crude Oil" required autocomplete="off">
+                    </div>
+                    <div class="flex-row">
+                        <div>
+                            <label class="form-label">Lot Size (Multiplier)</label>
+                            <input type="number" inputmode="decimal" id="commLot" placeholder="e.g. 100" required
+                                step="any">
+                        </div>
+                        <div>
+                            <label class="form-label">Brokerage (%)</label>
+                            <input type="number" inputmode="decimal" id="commPct" placeholder="e.g. 0.03" required
+                                step="any">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-outline"
+                        style="width: 100%; margin-top: 5px; background: white;">Save Settings</button>
+                </form>
+                <div id="masterList" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="closeModal" onclick="closeOnBackdrop(event, this)">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="closeModalTitle">Close Position</h3>
+                <button class="close-btn" onclick="closeModal('closeModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <p id="closeModalDesc" style="font-size: 14px; color: var(--text-main); margin-bottom: 15px;"></p>
+                <input type="hidden" id="closeTradeIds">
+
+                <div id="partialCloseSection"
+                    style="background: #fffcf0; padding: 15px; border: 1px dashed #fde293; border-radius: 8px; margin-bottom: 15px;">
+                    <label class="form-label" style="color:#713f12; font-size: 11px;">Lots to Close (Modify for Partial
+                        Exit)</label>
+                    <input type="number" inputmode="decimal" id="closeLots" placeholder="Quantity" required step="any"
+                        style="font-weight:500; color:#713f12; text-align:center; background: white;">
+                </div>
+
+                <div class="flex-row">
+                    <div>
+                        <label class="form-label">Exit Date</label>
+                        <input type="text" inputmode="numeric" id="closeDate" class="smart-date"
+                            placeholder="DD/MM/YYYY" required>
+                    </div>
+                    <div>
+                        <label class="form-label">Exit Price (₹)</label>
+                        <input type="number" inputmode="decimal" id="closePrice" placeholder="0.00" required step="any">
+                    </div>
+                </div>
+
+                <button onclick="submitCloseTrade()" class="btn btn-outline-danger"
+                    style="width: 100%; margin-top: 10px;">Execute Exit</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Data Storage ---
+        let masterData = JSON.parse(localStorage.getItem('mcxMasterDataV3')) || {};
+        let trades = JSON.parse(localStorage.getItem('mcxPositionsV3')) || [];
+        let cashFlow = JSON.parse(localStorage.getItem('mcxCashFlowV1')) || [];
+
+        // --- UTILITIES (Formatting & UI) ---
+        function formatMoney(num) {
+            if (isNaN(num)) return "0";
+            return new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2 }).format(num);
+        }
+
+        function showToast(message, type = 'success') {
+            let container = document.getElementById('toast-container');
+            let toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            // Simple monochrome icon
+            let icon = type === 'success' ? '✓' : '!';
+            toast.innerHTML = `<span style="font-weight:bold; color:${type === 'success' ? '#81c995' : '#f28b82'}">${icon}</span> <div>${message}</div>`;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.2s ease forwards';
+                setTimeout(() => toast.remove(), 200);
+            }, 3000);
+        }
+
+        // --- KEYBOARD SHORTCUTS & MODAL CONTROLS ---
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal').forEach(m => { m.classList.remove('show'); setTimeout(() => m.style.display = 'none', 200); });
+                return;
+            }
+            let activeTag = document.activeElement.tagName;
+            if (activeTag === 'INPUT' || activeTag === 'SELECT' || activeTag === 'TEXTAREA') return;
+
+            if (e.key === '+') { e.preventDefault(); openModal('newTradeModal', 'Buy'); }
+            else if (e.key === '-') { e.preventDefault(); openModal('newTradeModal', 'Sell'); }
+        });
+
+        function openModal(modalId, param) {
+            let modal = document.getElementById(modalId);
+            modal.style.display = 'flex';
+            void modal.offsetWidth;
+            modal.classList.add('show');
+
+            if (modalId === 'newTradeModal') {
+                document.getElementById('openDate').value = getTodayDDMMYYYY();
+                if (param) document.getElementById('openType').value = param;
+            } else if (modalId === 'cashModal') {
+                document.getElementById('cashDate').value = getTodayDDMMYYYY();
+            }
+        }
+
+        function closeModal(modalId) {
+            let modal = document.getElementById(modalId);
+            modal.classList.remove('show');
+            setTimeout(() => modal.style.display = 'none', 200);
+        }
+
+        function closeOnBackdrop(event, modalElement) {
+            if (event.target === modalElement) closeModal(modalElement.id);
+        }
+
+        // --- SMART DATE LOGIC ---
+        function getTodayDDMMYYYY() {
+            let now = new Date(); let d = String(now.getDate()).padStart(2, '0'); let m = String(now.getMonth() + 1).padStart(2, '0'); let y = now.getFullYear();
+            return `${d}/${m}/${y}`;
+        }
+        function parseSmartDate(val) {
+            val = val.replace(/\D/g, '');
+            if (!val) return "";
+            let now = new Date(); let currM = String(now.getMonth() + 1).padStart(2, '0'); let currY = now.getFullYear();
+            let d = "", m = "", y = ""; let len = val.length;
+
+            if (len <= 2) { d = val; m = currM; y = currY; }
+            else if (len === 3 || len === 4) { m = val.slice(-2); d = val.slice(0, -2); y = currY; }
+            else if (len === 5 || len === 6) { y = "20" + val.slice(-2); m = val.slice(-4, -2); d = val.slice(0, -4); }
+            else if (len === 7 || len === 8) { y = val.slice(-4); m = val.slice(-6, -4); d = val.slice(0, -6); }
+            else { return getTodayDDMMYYYY(); }
+
+            d = String(parseInt(d)).padStart(2, '0'); m = String(parseInt(m)).padStart(2, '0');
+            if (d === "NaN" || m === "NaN") return "";
+            return `${d}/${m}/${y}`;
+        }
+
+        document.querySelectorAll('.smart-date').forEach(input => {
+            input.addEventListener('blur', function () {
+                if (this.value.trim() !== "") this.value = parseSmartDate(this.value);
+            });
+        });
+
+        function init() { renderMasterData(); renderAll(); }
+
+        function clearAllData() {
+            if (confirm("⚠️ Pura data chala jayega (Trading history, cash entry, settings). Continue?")) {
+                localStorage.clear(); location.reload();
+            }
+        }
+
+        // --- CASH FLOW LOGIC ---
+        document.getElementById('cashForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            cashFlow.push({ id: Date.now(), date: parseSmartDate(document.getElementById('cashDate').value), type: document.getElementById('cashType').value, amount: parseFloat(document.getElementById('cashAmount').value), remark: document.getElementById('cashRemark').value || '-' });
+            saveData(); renderAll();
+            document.getElementById('cashAmount').value = ''; document.getElementById('cashRemark').value = '';
+            showToast("Fund entry added");
+        });
+        function deleteCashRecord(id) { if (confirm("Delete entry?")) { cashFlow = cashFlow.filter(c => c.id !== id); saveData(); renderAll(); showToast("Deleted", "error"); } }
+
+        // --- MASTER DATA LOGIC ---
+        document.getElementById('masterForm').addEventListener('submit', function (e) {
+            e.preventDefault(); let name = document.getElementById('commName').value.trim();
+            masterData[name] = { size: parseFloat(document.getElementById('commLot').value), pct: parseFloat(document.getElementById('commPct').value) };
+            localStorage.setItem('mcxMasterDataV3', JSON.stringify(masterData)); this.reset(); renderMasterData();
+            showToast("Setting Saved");
+        });
+        function renderMasterData() {
+            let listDiv = document.getElementById('masterList'); let selectDrop = document.getElementById('tradeCommodity');
+            listDiv.innerHTML = ''; selectDrop.innerHTML = '<option value="" disabled selected>Select Item</option>';
+            for (let comm in masterData) {
+                listDiv.innerHTML += `<div style="background:#f1f3f4; color:var(--text-main); padding:6px 10px; border-radius:4px; font-size:12px; display:flex; align-items:center; gap:8px; border:1px solid #dadce0;">
+                <b style="color:var(--primary); font-weight:500;">${comm}</b> <span style="color:var(--text-muted);">| ${masterData[comm].size} x | ${masterData[comm].pct}%</span> 
+                <button type="button" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:14px; margin-left:3px;" onclick="deleteMaster('${comm}')">✕</button></div>`;
+                selectDrop.innerHTML += `<option value="${comm}">${comm}</option>`;
+            }
+        }
+        function deleteMaster(comm) { if (confirm(`Delete ${comm}?`)) { delete masterData[comm]; localStorage.setItem('mcxMasterDataV3', JSON.stringify(masterData)); renderMasterData(); } }
+
+        // --- NEW TRADE LOGIC ---
+        document.getElementById('openTradeForm').addEventListener('submit', function (e) {
+            e.preventDefault(); let commodity = document.getElementById('tradeCommodity').value; let lotInfo = masterData[commodity];
+            if (!lotInfo) { showToast("Pehle master data mein commodity jodein.", "error"); return; }
+            trades.push({
+                id: Date.now(), openDate: parseSmartDate(document.getElementById('openDate').value), type: document.getElementById('openType').value,
+                commodity: commodity, lots: parseFloat(document.getElementById('tradeLots').value), lotSize: lotInfo.size,
+                commPct: lotInfo.pct, openPrice: parseFloat(document.getElementById('openPrice').value),
+                status: 'Open', closeDate: null, closePrice: null, grossPL: 0, totalBrokerage: 0, netPL: 0
+            });
+            saveData(); renderAll();
+            document.getElementById('tradeLots').value = ''; document.getElementById('openPrice').value = '';
+            closeModal('newTradeModal');
+            showToast("Trade Opened");
+        });
+
+        // --- CLOSE MODAL LOGIC ---
+        function toggleAllOpen(source) {
+            let checkboxes = document.querySelectorAll('.bulk-check');
+            for (let i = 0; i < checkboxes.length; i++) checkboxes[i].checked = source.checked;
+        }
+
+        function openBulkCloseModal() {
+            let selectedIds = [];
+            document.querySelectorAll('.bulk-check:checked').forEach(cb => selectedIds.push(parseInt(cb.value)));
+            if (selectedIds.length === 0) { showToast("Kam se kam 1 trade chunein.", "error"); return; }
+
+            document.getElementById('closeModalTitle').innerText = "Bulk Close Trades";
+            document.getElementById('closeModalDesc').innerHTML = `Closing <b style="color:var(--text-main); font-weight:500;">${selectedIds.length}</b> position(s).`;
+            document.getElementById('closeTradeIds').value = JSON.stringify(selectedIds);
+            document.getElementById('closeDate').value = getTodayDDMMYYYY();
+            document.getElementById('partialCloseSection').style.display = 'none';
+            openModal('closeModal');
+        }
+
+        function triggerCloseSingle(id) {
+            let t = trades.find(tr => tr.id === id);
+            document.getElementById('closeModalTitle').innerText = "Exit Position";
+            document.getElementById('closeModalDesc').innerHTML = `Closing <b style="color:var(--text-main); font-weight:500;">${t.commodity}</b> (${t.type})`;
+            document.getElementById('closeTradeIds').value = JSON.stringify([id]);
+            document.getElementById('closeDate').value = getTodayDDMMYYYY();
+
+            let lotInput = document.getElementById('closeLots');
+            lotInput.value = t.lots; lotInput.max = t.lots;
+            document.getElementById('partialCloseSection').style.display = 'block';
+            openModal('closeModal');
+        }
+
+        function submitCloseTrade() {
+            let idsArray = JSON.parse(document.getElementById('closeTradeIds').value);
+            let closeDate = parseSmartDate(document.getElementById('closeDate').value);
+            let closePrice = parseFloat(document.getElementById('closePrice').value);
+            let closeLotsInput = document.getElementById('closeLots');
+
+            if (!closeDate || isNaN(closePrice)) { showToast("Valid Date/Price dalein.", "error"); return; }
+
+            if (idsArray.length === 1) {
+                let id = idsArray[0]; let t = trades.find(tr => tr.id === id); let lotsToClose = parseFloat(closeLotsInput.value);
+                if (lotsToClose <= 0 || lotsToClose > t.lots || isNaN(lotsToClose)) { showToast("Galat quantity.", "error"); return; }
+                if (lotsToClose === t.lots) { closeFullTrade(t, closeDate, closePrice); }
+                else {
+                    let closedPortion = JSON.parse(JSON.stringify(t));
+                    closedPortion.id = Date.now(); closedPortion.lots = lotsToClose;
+                    closeFullTrade(closedPortion, closeDate, closePrice);
+                    trades.push(closedPortion); t.lots = t.lots - lotsToClose;
+                }
+            } else {
+                idsArray.forEach(id => { let t = trades.find(tr => tr.id === id); if (t && t.status === 'Open') closeFullTrade(t, closeDate, closePrice); });
+            }
+            document.getElementById('selectAllOpen').checked = false;
+            saveData(); renderAll(); closeModal('closeModal');
+            document.getElementById('closePrice').value = '';
+            showToast("Trade(s) Closed");
+        }
+
+        function closeFullTrade(t, closeDate, closePrice) {
+            t.closeDate = closeDate; t.closePrice = closePrice; t.status = 'Closed';
+            t.grossPL = t.type === 'Buy' ? (t.closePrice - t.openPrice) * t.lots * t.lotSize : (t.openPrice - t.closePrice) * t.lots * t.lotSize;
+            let turnover = (t.openPrice + t.closePrice) * t.lots * t.lotSize;
+            t.totalBrokerage = turnover * (t.commPct / 100); t.netPL = t.grossPL - t.totalBrokerage;
+        }
+
+        function deleteTrade(id) { if (confirm("Kya aap sach mein ye record delete karna chahte hain?")) { trades = trades.filter(t => t.id !== id); saveData(); renderAll(); showToast("Deleted", "error"); } }
+
+        // --- LIVE M2M CALCULATION ---
+        function calculateM2M(id, cmpInput) {
+            let cmp = parseFloat(cmpInput.value); let m2mCell = document.getElementById('m2m_' + id);
+            if (isNaN(cmp)) { m2mCell.innerHTML = '-'; return; }
+            let t = trades.find(tr => tr.id === id);
+            if (t) {
+                let m2mPL = t.type === 'Buy' ? (cmp - t.openPrice) * t.lots * t.lotSize : (t.openPrice - cmp) * t.lots * t.lotSize;
+                let plClass = m2mPL >= 0 ? 'text-green' : 'text-red';
+                m2mCell.innerHTML = `<span class="${plClass} num">${m2mPL > 0 ? '+' : ''}${formatMoney(m2mPL)}</span>`;
+            }
+        }
+
+        // --- MAIN RENDER ENGINE ---
+        function renderAll() {
+            let totalNetPL = 0; let totalBrokeragePaid = 0; let totalDeposits = 0; let totalWithdrawals = 0;
+
+            let cashBody = document.getElementById('cashTableBody'); cashBody.innerHTML = '';
+            [...cashFlow].reverse().forEach(c => {
+                if (c.type === 'Deposit') totalDeposits += c.amount; else totalWithdrawals += c.amount;
+                let colorClass = c.type === 'Deposit' ? 'text-green' : 'text-red'; let sign = c.type === 'Deposit' ? '+' : '-';
+                cashBody.innerHTML += `<tr><td style="text-align:left;">${c.date}</td><td>${c.type}</td><td class="${colorClass} num">${sign}${formatMoney(c.amount)}</td><td style="text-align:center;"><button class="btn" style="background:none; color:var(--text-muted); border:none; font-size:16px; padding:0;" onclick="deleteCashRecord(${c.id})">✕</button></td></tr>`;
+            });
+            if (cashFlow.length === 0) cashBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">No transactions</td></tr>`;
+
+            // Calculate Open Averages
+            let openAverages = {};
+            trades.forEach(t => {
+                if (t.status === 'Open') {
+                    let key = t.commodity + '_' + t.type;
+                    if (!openAverages[key]) openAverages[key] = { totalLots: 0, totalValue: 0, count: 0 };
+                    openAverages[key].totalLots += t.lots;
+                    openAverages[key].totalValue += (t.lots * t.openPrice);
+                    openAverages[key].count += 1;
+                }
+            });
+
+            let openBody = document.getElementById('openTradesBody'); let closedBody = document.getElementById('closedTradesBody');
+            openBody.innerHTML = ''; closedBody.innerHTML = '';
+
+            [...trades].reverse().forEach(t => {
+                let typeBadge = t.type === 'Buy' ? `<span class="badge bg-buy">B</span>` : `<span class="badge bg-sell">S</span>`;
+                if (t.status === 'Open') {
+                    let avgBadge = ''; let key = t.commodity + '_' + t.type;
+                    if (openAverages[key] && openAverages[key].count > 1) {
+                        let avgPrice = (openAverages[key].totalValue / openAverages[key].totalLots).toFixed(2);
+                        avgBadge = `<br><span class="badge-avg">Avg: ${formatMoney(avgPrice)}</span>`;
+                    }
+
+                    openBody.innerHTML += `<tr>
+                    <td style="text-align:center;"><input type="checkbox" class="bulk-check" value="${t.id}"></td>
+                    <td>${t.openDate}</td>
+                    <td><b>${t.commodity}</b> <span style="color:var(--text-muted); font-size:11px;">(${t.lots}L)</span> ${typeBadge}${avgBadge}</td>
+                    <td class="num">${formatMoney(t.openPrice)}</td>
+                    <td><input type="number" inputmode="decimal" class="cmp-input num" placeholder="Rate" onkeyup="calculateM2M(${t.id}, this)"></td>
+                    <td id="m2m_${t.id}" class="num">-</td>
+                    <td>
+                        <button class="btn btn-outline" style="min-height:28px; padding: 4px 10px; font-size:12px;" onclick="triggerCloseSingle(${t.id})">Exit</button>
+                    </td>
+                </tr>`;
+                } else {
+                    totalNetPL += t.netPL; totalBrokeragePaid += t.totalBrokerage; let plClass = t.netPL >= 0 ? 'text-green' : 'text-red';
+                    closedBody.innerHTML += `<tr>
+                    <td style="font-size:11px; color:var(--text-muted); line-height:1.5;">In: <span style="color:var(--text-main); font-weight:500;">${t.openDate}</span><br>Out: <span style="color:var(--text-main); font-weight:500;">${t.closeDate}</span></td>
+                    <td><b style="color:var(--text-main); font-weight:400;">${t.commodity}</b> <span style="color:var(--text-muted); font-size:11px;">(${t.lots}L)</span> ${typeBadge}</td>
+                    <td class="num">${formatMoney(t.openPrice)}</td>
+                    <td class="num">${formatMoney(t.closePrice)}</td>
+                    <td class="num">${formatMoney(t.grossPL)}</td>
+                    <td class="num" style="color:var(--danger); opacity:0.8; font-size:11px;">-${formatMoney(t.totalBrokerage)}</td>
+                    <td class="${plClass} num">${t.netPL > 0 ? '+' : ''}${formatMoney(t.netPL)}</td>
+                </tr>`;
+                }
+            });
+
+            if (openBody.innerHTML === '') openBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-muted);">Khali position. <kbd>+</kbd> dabayein.</td></tr>`;
+            if (closedBody.innerHTML === '') closedBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-muted);">No history.</td></tr>`;
+
+            // Dashboard Maths Update (Static White Cards)
+            let netFunds = totalDeposits - totalWithdrawals; let currentBalance = netFunds + totalNetPL;
+
+            document.getElementById('dashNetPL').innerText = (totalNetPL >= 0 ? "+₹ " : "-₹ ") + formatMoney(Math.abs(totalNetPL));
+            // Only change number color
+            if (totalNetPL > 0) document.getElementById('dashNetPL').className = 'num val-positive';
+            else if (totalNetPL < 0) document.getElementById('dashNetPL').className = 'num val-negative';
+            else document.getElementById('dashNetPL').className = 'num';
+
+            document.getElementById('dashBrokerage').innerText = "₹ " + formatMoney(totalBrokeragePaid);
+            document.getElementById('dashNetFunds').innerText = "₹ " + formatMoney(netFunds);
+
+            let balCard = document.getElementById('dashBalanceCard');
+            document.getElementById('dashBalance').innerText = "₹ " + formatMoney(currentBalance);
+            // Only special indicator if balance is negative
+            if (currentBalance < 0) { balCard.classList.add('balance-negative'); }
+            else { balCard.classList.remove('balance-negative'); }
+        }
+
+        function saveData() { localStorage.setItem('mcxPositionsV3', JSON.stringify(trades)); localStorage.setItem('mcxCashFlowV1', JSON.stringify(cashFlow)); }
+
+        init();
+    </script>
+    <script>
+        // Service Worker Register karna
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker Registered!', reg))
+                    .catch(err => console.log('Service Worker Error!', err));
+            });
+        }
+    </script>
+
+</body>
+
+</html>
