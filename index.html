@@ -351,6 +351,34 @@
             margin: 0;
         }
 
+        /* Action Buttons in Table */
+        .action-btns {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px;
+            border-radius: 4px;
+            color: var(--text-muted);
+            transition: 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: #f1f3f4;
+            color: var(--primary);
+        }
+
+        .icon-btn.del:hover {
+            color: var(--danger);
+        }
+
         /* Modals */
         .modal {
             display: none;
@@ -602,7 +630,7 @@
                         <th>Entry Rate</th>
                         <th>Live Rate</th>
                         <th>M2M P&L</th>
-                        <th>Action</th>
+                        <th style="text-align:right;">Action</th>
                     </tr>
                 </thead>
                 <tbody id="openTradesBody"></tbody>
@@ -623,6 +651,7 @@
                         <th>Gross</th>
                         <th>Brokerage</th>
                         <th>Net P&L</th>
+                        <th style="text-align:right;">Action</th>
                     </tr>
                 </thead>
                 <tbody id="closedTradesBody"></tbody>
@@ -676,10 +705,74 @@
         </div>
     </div>
 
+    <div class="modal" id="editTradeModal" onclick="closeOnBackdrop(event, this)">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Trade Record</h3>
+                <button class="close-btn" onclick="closeModal('editTradeModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="editTradeForm">
+                    <div class="flex-row">
+                        <div style="flex: 0.8;">
+                            <label class="form-label">Open Date</label>
+                            <input type="text" id="editOpenDate" inputmode="numeric" class="smart-date"
+                                placeholder="DD/MM/YYYY" required autocomplete="off">
+                        </div>
+                        <div style="flex: 1;">
+                            <label class="form-label">Type & Commodity</label>
+                            <div style="display:flex; gap:5px;">
+                                <select id="editOpenType" required style="flex:0.6; font-weight: 500;">
+                                    <option value="Buy">Buy</option>
+                                    <option value="Sell">Sell</option>
+                                </select>
+                                <select id="editTradeCommodity" required style="flex:1;"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-row">
+                        <div style="flex: 0.5;">
+                            <label class="form-label">Quantity (Lots)</label>
+                            <input type="number" inputmode="decimal" id="editTradeLots" required step="any"
+                                placeholder="0">
+                        </div>
+                        <div style="flex: 1;">
+                            <label class="form-label">Entry Price (₹)</label>
+                            <input type="number" inputmode="decimal" id="editOpenPrice" required step="any"
+                                placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div id="editCloseSection"
+                        style="display: none; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid var(--border); margin-top: 10px;">
+                        <label
+                            style="font-size:12px; font-weight:500; color:var(--danger); display:block; margin-bottom:10px;">Exit
+                            Details (Closed Trade)</label>
+                        <div class="flex-row" style="margin-bottom:0;">
+                            <div>
+                                <label class="form-label">Exit Date</label>
+                                <input type="text" id="editCloseDate" inputmode="numeric" class="smart-date"
+                                    placeholder="DD/MM/YYYY">
+                            </div>
+                            <div>
+                                <label class="form-label">Exit Price (₹)</label>
+                                <input type="number" inputmode="decimal" id="editClosePrice" step="any"
+                                    placeholder="0.00">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary"
+                        style="width: 100%; margin-top: 15px; font-size: 14px;">Update Record</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div class="modal" id="cashModal" onclick="closeOnBackdrop(event, this)">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Cash Book Ledger</h3>
+                <h3 id="cashModalTitle">Cash Book Ledger</h3>
                 <button class="close-btn" onclick="closeModal('cashModal')">✕</button>
             </div>
             <div class="modal-body">
@@ -699,7 +792,7 @@
                             inputmode="decimal" id="cashAmount" placeholder="Enter Amount" required step="any"></div>
                     <div class="form-group"><label class="form-label">Remark (Optional)</label><input type="text"
                             id="cashRemark" placeholder="e.g. Bank Transfer" autocomplete="off"></div>
-                    <button type="submit" class="btn btn-outline"
+                    <button type="submit" id="cashSubmitBtn" class="btn btn-outline"
                         style="width: 100%; border-color: var(--border); background:white;">Add Entry</button>
                 </form>
                 <div class="table-responsive" style="max-height: 200px; margin-bottom: 0;">
@@ -709,7 +802,7 @@
                                 <th style="text-align:left;">Date</th>
                                 <th>Type</th>
                                 <th>Amount ₹</th>
-                                <th style="text-align:center;">Del</th>
+                                <th style="text-align:right;">Action</th>
                             </tr>
                         </thead>
                         <tbody id="cashTableBody"></tbody>
@@ -746,7 +839,7 @@
     <div class="modal" id="closeModal" onclick="closeOnBackdrop(event, this)">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="closeModalTitle">Close Position</h3>
+                <h3 id="closeModalTitle">Exit Position</h3>
                 <button class="close-btn" onclick="closeModal('closeModal')">✕</button>
             </div>
             <div class="modal-body">
@@ -768,14 +861,14 @@
                             id="closePrice" placeholder="0.00" required step="any"></div>
                 </div>
                 <button onclick="submitCloseTrade()" class="btn btn-outline-danger"
-                    style="width: 100%; margin-top: 10px;">Execute Exit</button>
+                    style="width: 100%; margin-top: 10px;">Confirm Exit</button>
             </div>
         </div>
     </div>
 
     <script>
         // ==========================================
-        // FIREBASE CLOUD SETUP (USER CONFIG)
+        // FIREBASE CLOUD SETUP
         // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyDr07iCen0tzwLwWVgpzh5Zt7JYjyyLGrk",
@@ -791,6 +884,8 @@
         const db = firebase.database();
 
         let masterData = {}; let trades = []; let cashFlow = [];
+        let currentEditCashId = null;
+        let currentEditTradeId = null;
 
         // --- REALTIME SYNC ---
         const syncIndicator = document.getElementById('syncIndicator');
@@ -834,18 +929,6 @@
             container.appendChild(toast);
             setTimeout(() => { toast.style.animation = 'fadeOut 0.2s ease forwards'; setTimeout(() => toast.remove(), 200); }, 3000);
         }
-        // --- KEYBOARD SHORTCUTS (+ , - , and ESC) ---
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') {
-                document.querySelectorAll('.modal').forEach(m => { m.classList.remove('show'); setTimeout(() => m.style.display = 'none', 200); });
-                return;
-            }
-            let activeTag = document.activeElement.tagName;
-            if (activeTag === 'INPUT' || activeTag === 'SELECT' || activeTag === 'TEXTAREA') return;
-
-            if (e.key === '+') { e.preventDefault(); openModal('newTradeModal', 'Buy'); }
-            else if (e.key === '-') { e.preventDefault(); openModal('newTradeModal', 'Sell'); }
-        });
 
         // --- SMART KEYBOARD CONTROLS (Esc, Enter, +/-) ---
         document.addEventListener('keydown', function (e) {
@@ -857,27 +940,29 @@
             }
 
             const activeEl = document.activeElement;
-            const isInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'SELECT' || activeTag === 'TEXTAREA');
+            const isInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'SELECT' || activeEl.tagName === 'TEXTAREA');
 
             // 2. ENTER to go to Next Field (Tally Style)
             if (e.key === 'Enter' && isInput) {
-                e.preventDefault(); // Stop default form submit
+                e.preventDefault();
                 const form = activeEl.closest('form') || activeEl.closest('.modal-content');
                 if (form) {
-                    // Find all focusable inputs/selects and the submit button
                     const focusables = Array.from(form.querySelectorAll('input:not([type="hidden"]), select, button[type="submit"], .btn-danger'));
-                    const index = focusables.indexOf(activeEl);
-                    if (index > -1 && index < focusables.length - 1) {
-                        focusables[index + 1].focus(); // Focus next field
-                    } else if (index === focusables.length - 1 || activeEl.tagName === 'BUTTON') {
-                        // If it's the last button, trigger click
-                        focusables[index].click();
+                    // Filter out non-visible elements
+                    const visibleFocusables = focusables.filter(el => el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0);
+
+                    const index = visibleFocusables.indexOf(activeEl);
+                    if (index > -1 && index < visibleFocusables.length - 1) {
+                        visibleFocusables[index + 1].focus();
+                        if (visibleFocusables[index + 1].tagName === 'INPUT') visibleFocusables[index + 1].select();
+                    } else if (index === visibleFocusables.length - 1 || activeEl.tagName === 'BUTTON') {
+                        visibleFocusables[index].click();
                     }
                 }
                 return;
             }
 
-            // 3. Shortcuts + / - (Only if not typing in an input)
+            // 3. Shortcuts + / - 
             if (!isInput) {
                 if (e.key === '+') { e.preventDefault(); openModal('newTradeModal', 'Buy'); }
                 else if (e.key === '-') { e.preventDefault(); openModal('newTradeModal', 'Sell'); }
@@ -891,30 +976,41 @@
             void modal.offsetWidth;
             modal.classList.add('show');
 
-            // Defaults
             if (modalId === 'newTradeModal') {
                 document.getElementById('openDate').value = getTodayDDMMYYYY();
                 if (param) document.getElementById('openType').value = param;
-            } else if (modalId === 'cashModal') {
+            } else if (modalId === 'cashModal' && !currentEditCashId) {
                 document.getElementById('cashDate').value = getTodayDDMMYYYY();
+                document.getElementById('cashSubmitBtn').innerText = "Add Entry";
+                document.getElementById('cashModalTitle').innerText = "Cash Book Ledger";
             }
 
-            // AUTO-FOCUS FIRST INPUT
+            // AUTO-FOCUS
             setTimeout(() => {
                 const firstInput = modal.querySelector('input:not([type="hidden"]), select');
                 if (firstInput) {
                     firstInput.focus();
-                    // If it's a text input, select the text for quick overwrite
                     if (firstInput.tagName === 'INPUT') firstInput.select();
                 }
-            }, 100); // 100ms delay to ensure modal animation started
+            }, 100);
         }
 
         function closeModal(modalId) {
             let modal = document.getElementById(modalId);
             if (modal) {
                 modal.classList.remove('show');
-                setTimeout(() => modal.style.display = 'none', 200);
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    // Reset forms and states upon closing
+                    if (modalId === 'cashModal') {
+                        document.getElementById('cashForm').reset();
+                        currentEditCashId = null;
+                    }
+                    if (modalId === 'editTradeModal') {
+                        document.getElementById('editTradeForm').reset();
+                        currentEditTradeId = null;
+                    }
+                }, 200);
             }
         }
 
@@ -954,28 +1050,67 @@
             }
         }
 
-        // --- CASH FLOW LOGIC ---
+        // --- CASH FLOW LOGIC (Add & Edit) ---
         document.getElementById('cashForm').addEventListener('submit', function (e) {
             e.preventDefault();
-            cashFlow.push({ id: Date.now(), date: parseSmartDate(document.getElementById('cashDate').value), type: document.getElementById('cashType').value, amount: parseFloat(document.getElementById('cashAmount').value), remark: document.getElementById('cashRemark').value || '-' });
-            saveToCloud(); document.getElementById('cashAmount').value = ''; document.getElementById('cashRemark').value = ''; closeModal('cashModal'); showToast("Fund entry added");
+
+            if (currentEditCashId) {
+                // Update existing
+                let c = cashFlow.find(x => x.id === currentEditCashId);
+                if (c) {
+                    c.date = parseSmartDate(document.getElementById('cashDate').value);
+                    c.type = document.getElementById('cashType').value;
+                    c.amount = parseFloat(document.getElementById('cashAmount').value);
+                    c.remark = document.getElementById('cashRemark').value || '-';
+                }
+                currentEditCashId = null;
+                document.getElementById('cashSubmitBtn').innerText = "Add Entry";
+                showToast("Fund entry Updated");
+            } else {
+                // Create new
+                cashFlow.push({ id: Date.now(), date: parseSmartDate(document.getElementById('cashDate').value), type: document.getElementById('cashType').value, amount: parseFloat(document.getElementById('cashAmount').value), remark: document.getElementById('cashRemark').value || '-' });
+                showToast("Fund entry Added");
+            }
+
+            saveToCloud();
+            document.getElementById('cashForm').reset();
+            document.getElementById('cashDate').value = getTodayDDMMYYYY();
+            document.getElementById('cashDate').focus(); // Keep form ready for next entry
         });
-        function deleteCashRecord(id) { if (confirm("Delete entry?")) { cashFlow = cashFlow.filter(c => c.id !== id); saveToCloud(); showToast("Deleted", "error"); } }
+
+        function editCashRecord(id) {
+            let c = cashFlow.find(x => x.id === id);
+            if (!c) return;
+            currentEditCashId = id;
+            document.getElementById('cashDate').value = c.date;
+            document.getElementById('cashType').value = c.type;
+            document.getElementById('cashAmount').value = c.amount;
+            document.getElementById('cashRemark').value = c.remark === '-' ? '' : c.remark;
+
+            document.getElementById('cashSubmitBtn').innerText = "Update Entry";
+            document.getElementById('cashModalTitle').innerText = "Edit Cash Entry";
+            openModal('cashModal');
+        }
+
+        function deleteCashRecord(id) { if (confirm("Delete this cash entry?")) { cashFlow = cashFlow.filter(c => c.id !== id); saveToCloud(); showToast("Deleted", "error"); } }
 
         // --- MASTER DATA LOGIC ---
         document.getElementById('masterForm').addEventListener('submit', function (e) {
             e.preventDefault(); let name = document.getElementById('commName').value.trim();
             masterData[name] = { size: parseFloat(document.getElementById('commLot').value), pct: parseFloat(document.getElementById('commPct').value) };
-            saveToCloud(); this.reset(); showToast("Setting Saved"); document.getElementById('commName').focus(); // Auto focus back to first field
+            saveToCloud(); this.reset(); showToast("Setting Saved"); document.getElementById('commName').focus();
         });
         function renderMasterData() {
-            let listDiv = document.getElementById('masterList'); let selectDrop = document.getElementById('tradeCommodity');
-            listDiv.innerHTML = ''; selectDrop.innerHTML = '<option value="" disabled selected>Select Item</option>';
+            let listDiv = document.getElementById('masterList');
+            let selectDrops = [document.getElementById('tradeCommodity'), document.getElementById('editTradeCommodity')];
+            listDiv.innerHTML = '';
+            selectDrops.forEach(drop => { if (drop) drop.innerHTML = '<option value="" disabled selected>Select Item</option>'; });
+
             for (let comm in masterData) {
                 listDiv.innerHTML += `<div style="background:#f1f3f4; color:var(--text-main); padding:6px 10px; border-radius:4px; font-size:12px; display:flex; align-items:center; gap:8px; border:1px solid #dadce0;">
                 <b style="color:var(--primary); font-weight:500;">${comm}</b> <span style="color:var(--text-muted);">| ${masterData[comm].size} x | ${masterData[comm].pct}%</span> 
                 <button type="button" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:14px; margin-left:3px;" onclick="deleteMaster('${comm}')">✕</button></div>`;
-                selectDrop.innerHTML += `<option value="${comm}">${comm}</option>`;
+                selectDrops.forEach(drop => { if (drop) drop.innerHTML += `<option value="${comm}">${comm}</option>`; });
             }
         }
         function deleteMaster(comm) { if (confirm(`Delete ${comm}?`)) { delete masterData[comm]; saveToCloud(); } }
@@ -990,10 +1125,66 @@
                 commPct: lotInfo.pct, openPrice: parseFloat(document.getElementById('openPrice').value),
                 status: 'Open', closeDate: null, closePrice: null, grossPL: 0, totalBrokerage: 0, netPL: 0
             });
-            saveToCloud(); document.getElementById('tradeLots').value = ''; document.getElementById('openPrice').value = ''; closeModal('newTradeModal'); showToast("Trade Opened");
+            saveToCloud(); document.getElementById('openTradeForm').reset(); closeModal('newTradeModal'); showToast("Trade Opened");
         });
 
-        // --- CLOSE MODAL LOGIC ---
+        // --- EDIT TRADE LOGIC (Open & Closed) ---
+        function editTradeRecord(id) {
+            let t = trades.find(tr => tr.id === id);
+            if (!t) return;
+            currentEditTradeId = id;
+
+            document.getElementById('editOpenDate').value = t.openDate;
+            document.getElementById('editOpenType').value = t.type;
+            document.getElementById('editTradeCommodity').value = t.commodity;
+            document.getElementById('editTradeLots').value = t.lots;
+            document.getElementById('editOpenPrice').value = t.openPrice;
+
+            if (t.status === 'Closed') {
+                document.getElementById('editCloseSection').style.display = 'block';
+                document.getElementById('editCloseDate').value = t.closeDate;
+                document.getElementById('editClosePrice').value = t.closePrice;
+                document.getElementById('editCloseDate').required = true;
+                document.getElementById('editClosePrice').required = true;
+            } else {
+                document.getElementById('editCloseSection').style.display = 'none';
+                document.getElementById('editCloseDate').required = false;
+                document.getElementById('editClosePrice').required = false;
+            }
+
+            openModal('editTradeModal');
+        }
+
+        document.getElementById('editTradeForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            let t = trades.find(tr => tr.id === currentEditTradeId);
+            if (!t) return;
+
+            let comm = document.getElementById('editTradeCommodity').value;
+            let lotInfo = masterData[comm];
+            if (!lotInfo) { showToast("Commodity not found in Master.", "error"); return; }
+
+            t.openDate = parseSmartDate(document.getElementById('editOpenDate').value);
+            t.type = document.getElementById('editOpenType').value;
+            t.commodity = comm;
+            t.lots = parseFloat(document.getElementById('editTradeLots').value);
+            t.openPrice = parseFloat(document.getElementById('editOpenPrice').value);
+            t.lotSize = lotInfo.size;
+            t.commPct = lotInfo.pct;
+
+            if (t.status === 'Closed') {
+                let cDate = parseSmartDate(document.getElementById('editCloseDate').value);
+                let cPrice = parseFloat(document.getElementById('editClosePrice').value);
+                closeFullTrade(t, cDate, cPrice); // recalculate P&L
+            }
+
+            saveToCloud();
+            closeModal('editTradeModal');
+            showToast("Trade Updated successfully");
+        });
+
+
+        // --- CLOSE MODAL LOGIC (Exit Trade) ---
         function toggleAllOpen(source) {
             let checkboxes = document.querySelectorAll('.bulk-check');
             for (let i = 0; i < checkboxes.length; i++) checkboxes[i].checked = source.checked;
@@ -1002,11 +1193,12 @@
         function openBulkCloseModal() {
             let selectedIds = [];
             document.querySelectorAll('.bulk-check:checked').forEach(cb => selectedIds.push(parseInt(cb.value)));
-            if (selectedIds.length === 0) { showToast("Kam se kam 1 trade chunein.", "error"); return; }
+            if (selectedIds.length === 0) { showToast("Select at least 1 trade to close", "error"); return; }
 
             document.getElementById('closeModalTitle').innerText = "Bulk Close Trades";
             document.getElementById('closeModalDesc').innerHTML = `Closing <b style="color:var(--text-main); font-weight:500;">${selectedIds.length}</b> position(s).`;
             document.getElementById('closeTradeIds').value = JSON.stringify(selectedIds);
+            document.getElementById('closeDate').value = getTodayDDMMYYYY();
             document.getElementById('partialCloseSection').style.display = 'none';
             openModal('closeModal');
         }
@@ -1016,6 +1208,7 @@
             document.getElementById('closeModalTitle').innerText = "Exit Position";
             document.getElementById('closeModalDesc').innerHTML = `Closing <b style="color:var(--text-main); font-weight:500;">${t.commodity}</b> (${t.type})`;
             document.getElementById('closeTradeIds').value = JSON.stringify([id]);
+            document.getElementById('closeDate').value = getTodayDDMMYYYY();
 
             let lotInput = document.getElementById('closeLots');
             lotInput.value = t.lots; lotInput.max = t.lots;
@@ -1045,7 +1238,7 @@
                 idsArray.forEach(id => { let t = trades.find(tr => tr.id === id); if (t && t.status === 'Open') closeFullTrade(t, closeDate, closePrice); });
             }
             document.getElementById('selectAllOpen').checked = false;
-            saveToCloud(); closeModal('closeModal'); document.getElementById('closePrice').value = ''; showToast("Trade(s) Closed");
+            saveToCloud(); closeModal('closeModal'); document.getElementById('closePrice').value = ''; showToast("Trade(s) Exited");
         }
 
         function closeFullTrade(t, closeDate, closePrice) {
@@ -1055,7 +1248,7 @@
             t.totalBrokerage = turnover * (t.commPct / 100); t.netPL = t.grossPL - t.totalBrokerage;
         }
 
-        function deleteTrade(id) { if (confirm("Kya aap sach mein ye record delete karna chahte hain?")) { trades = trades.filter(t => t.id !== id); saveToCloud(); showToast("Deleted", "error"); } }
+        function deleteTrade(id) { if (confirm("Are you sure you want to delete this trade record completely?")) { trades = trades.filter(t => t.id !== id); saveToCloud(); showToast("Trade Deleted", "error"); } }
 
         // --- LIVE M2M CALCULATION ---
         function calculateM2M(id, cmpInput) {
@@ -1077,7 +1270,16 @@
             [...cashFlow].reverse().forEach(c => {
                 if (c.type === 'Deposit') totalDeposits += c.amount; else totalWithdrawals += c.amount;
                 let colorClass = c.type === 'Deposit' ? 'text-green' : 'text-red'; let sign = c.type === 'Deposit' ? '+' : '-';
-                cashBody.innerHTML += `<tr><td style="text-align:left;">${c.date}</td><td>${c.type}</td><td class="${colorClass} num">${sign}${formatMoney(c.amount)}</td><td style="text-align:center;"><button class="btn" style="background:none; color:var(--text-muted); border:none; font-size:16px; padding:0; min-height:auto;" onclick="deleteCashRecord(${c.id})">✕</button></td></tr>`;
+                cashBody.innerHTML += `<tr>
+                <td style="text-align:left;">${c.date}<br><small style="color:var(--text-muted)">${c.remark}</small></td>
+                <td>${c.type}</td><td class="${colorClass} num">${sign}${formatMoney(c.amount)}</td>
+                <td>
+                    <div class="action-btns" style="justify-content:center;">
+                        <button class="icon-btn" onclick="editCashRecord(${c.id})" title="Edit">✏️</button>
+                        <button class="icon-btn del" onclick="deleteCashRecord(${c.id})" title="Delete">✕</button>
+                    </div>
+                </td>
+            </tr>`;
             });
             if (cashFlow.length === 0) cashBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">No transactions</td></tr>`;
 
@@ -1111,7 +1313,13 @@
                     <td class="num">${formatMoney(t.openPrice)}</td>
                     <td><input type="number" inputmode="decimal" class="cmp-input num" placeholder="Rate" onkeyup="calculateM2M(${t.id}, this)"></td>
                     <td id="m2m_${t.id}" class="num">-</td>
-                    <td><button class="btn btn-outline" style="min-height:28px; padding: 4px 10px; font-size:12px;" onclick="triggerCloseSingle(${t.id})">Exit</button></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="btn btn-outline" style="min-height:28px; padding: 4px 10px; font-size:12px;" onclick="triggerCloseSingle(${t.id})">Exit</button>
+                            <button class="icon-btn" onclick="editTradeRecord(${t.id})" title="Edit">✏️</button>
+                            <button class="icon-btn del" onclick="deleteTrade(${t.id})" title="Delete">✕</button>
+                        </div>
+                    </td>
                 </tr>`;
                 } else {
                     totalNetPL += t.netPL; totalBrokeragePaid += t.totalBrokerage; let plClass = t.netPL >= 0 ? 'text-green' : 'text-red';
@@ -1123,12 +1331,18 @@
                     <td class="num">${formatMoney(t.grossPL)}</td>
                     <td class="num" style="color:var(--danger); opacity:0.8; font-size:11px;">-${formatMoney(t.totalBrokerage)}</td>
                     <td class="${plClass} num">${t.netPL > 0 ? '+' : ''}${formatMoney(t.netPL)}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="icon-btn" onclick="editTradeRecord(${t.id})" title="Edit">✏️</button>
+                            <button class="icon-btn del" onclick="deleteTrade(${t.id})" title="Delete">✕</button>
+                        </div>
+                    </td>
                 </tr>`;
                 }
             });
 
             if (openBody.innerHTML === '') openBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-muted);">Khali position. <kbd>+</kbd> dabayein.</td></tr>`;
-            if (closedBody.innerHTML === '') closedBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-muted);">No history.</td></tr>`;
+            if (closedBody.innerHTML === '') closedBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--text-muted);">No history.</td></tr>`;
 
             let netFunds = totalDeposits - totalWithdrawals; let currentBalance = netFunds + totalNetPL;
 
