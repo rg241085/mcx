@@ -15,7 +15,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        /* === GOOGLE MINIMALIST COLOR PALETTE === */
         :root {
             --bg-main: #f8f9fa;
             --bg-card: #ffffff;
@@ -55,7 +54,6 @@
         h2 {
             font-size: 22px;
             font-weight: 400;
-            color: var(--text-main);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -65,7 +63,6 @@
         h3 {
             font-size: 16px;
             font-weight: 500;
-            color: var(--text-main);
             margin-top: 10px;
         }
 
@@ -75,6 +72,7 @@
             font-weight: 500;
         }
 
+        /* Dashboard */
         .dashboard {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -130,6 +128,7 @@
             color: var(--danger);
         }
 
+        /* Buttons & Actions */
         .action-bar {
             display: flex;
             gap: 10px;
@@ -152,9 +151,13 @@
             border-radius: 4px;
             border: 1px solid transparent;
             cursor: pointer;
-            transition: background 0.2s, box-shadow 0.2s;
+            transition: 0.2s;
             min-height: 40px;
             outline: none;
+        }
+
+        .btn:focus {
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.4);
         }
 
         .btn-primary {
@@ -174,6 +177,7 @@
             color: var(--danger);
         }
 
+        /* Forms */
         .form-group {
             margin-bottom: 15px;
             width: 100%;
@@ -209,16 +213,16 @@
             border-radius: 4px;
             background: white;
             color: var(--text-main);
-            transition: border-color 0.2s, box-shadow 0.2s;
             outline: none;
             box-sizing: border-box;
             height: 40px;
+            transition: 0.2s;
         }
 
         input:focus,
         select:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 1px var(--primary);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
         }
 
         .smart-date {
@@ -234,13 +238,13 @@
             text-align: center;
             border: 1px solid var(--border);
             background: white;
-            color: var(--text-main);
             font-weight: 500;
             border-radius: 4px;
             height: 32px;
             font-size: 13px;
         }
 
+        /* Tables */
         .section-header {
             display: flex;
             justify-content: space-between;
@@ -252,7 +256,6 @@
         .table-responsive {
             width: 100%;
             overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
             background: white;
             border-radius: var(--radius-lg);
             border: 1px solid var(--border);
@@ -297,6 +300,7 @@
             background: #fcfcfc;
         }
 
+        /* Badges */
         .badge {
             padding: 3px 8px;
             border-radius: 2px;
@@ -347,6 +351,7 @@
             margin: 0;
         }
 
+        /* Modals */
         .modal {
             display: none;
             position: fixed;
@@ -405,6 +410,12 @@
             color: var(--text-muted);
         }
 
+        .close-btn:focus {
+            background: #f1f3f4;
+            outline: none;
+        }
+
+        /* Toasts & Sync */
         #toast-container {
             position: fixed;
             bottom: 24px;
@@ -455,7 +466,6 @@
             }
         }
 
-        /* Sync Status Indicator */
         .sync-status {
             font-size: 12px;
             font-weight: 500;
@@ -559,22 +569,13 @@
         </div>
 
         <div class="dashboard">
-            <div class="dash-card" id="cardNetPL">
-                <span>Net Realized P&L</span>
-                <strong id="dashNetPL" class="num">₹ 0</strong>
-            </div>
-            <div class="dash-card">
-                <span>Total Brokerage</span>
-                <strong id="dashBrokerage" class="num text-red" style="font-weight: 400; opacity: 0.8;">₹ 0</strong>
-            </div>
-            <div class="dash-card">
-                <span>Net Cash Added</span>
-                <strong id="dashNetFunds" class="num">₹ 0</strong>
-            </div>
-            <div class="dash-card" id="dashBalanceCard">
-                <span>Available Balance</span>
-                <strong id="dashBalance" class="num">₹ 0</strong>
-            </div>
+            <div class="dash-card" id="cardNetPL"><span>Net Realized P&L</span><strong id="dashNetPL" class="num">₹
+                    0</strong></div>
+            <div class="dash-card"><span>Total Brokerage</span><strong id="dashBrokerage" class="num text-red"
+                    style="font-weight: 400; opacity: 0.8;">₹ 0</strong></div>
+            <div class="dash-card"><span>Net Cash Added</span><strong id="dashNetFunds" class="num">₹ 0</strong></div>
+            <div class="dash-card" id="dashBalanceCard"><span>Available Balance</span><strong id="dashBalance"
+                    class="num">₹ 0</strong></div>
         </div>
 
         <div class="action-bar">
@@ -786,112 +787,135 @@
             appId: "1:865218271628:web:1bb7047162e450f95d5ea9"
         };
 
-
-        // --- KEYBOARD SHORTCUTS (+ , - , and ESC) ---
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            document.querySelectorAll('.modal').forEach(m => { m.classList.remove('show'); setTimeout(() => m.style.display = 'none', 200); });
-            return;
-        }
-        let activeTag = document.activeElement.tagName;
-        if(activeTag === 'INPUT' || activeTag === 'SELECT' || activeTag === 'TEXTAREA') return;
-        
-        if (e.key === '+') { e.preventDefault(); openModal('newTradeModal', 'Buy'); } 
-        else if (e.key === '-') { e.preventDefault(); openModal('newTradeModal', 'Sell'); }
-    });
-        // Initialize Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
 
-        // Global Variables
-        let masterData = {};
-        let trades = [];
-        let cashFlow = [];
+        let masterData = {}; let trades = []; let cashFlow = [];
 
-        // --- REALTIME SYNC LISTENER ---
+        // --- REALTIME SYNC ---
         const syncIndicator = document.getElementById('syncIndicator');
-
         db.ref('TradeProDB').on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                masterData = data.masterData || {};
-                trades = data.trades || [];
-                cashFlow = data.cashFlow || [];
+                masterData = data.masterData || {}; trades = data.trades || []; cashFlow = data.cashFlow || [];
             } else {
                 masterData = {}; trades = []; cashFlow = [];
             }
-            syncIndicator.innerHTML = "☁️ Synced";
-            syncIndicator.className = "sync-status";
-            renderMasterData();
-            renderAll();
+            syncIndicator.innerHTML = "☁️ Synced"; syncIndicator.className = "sync-status";
+            renderMasterData(); renderAll();
         }, (error) => {
-            syncIndicator.innerHTML = "⚠️ Offline";
-            syncIndicator.className = "sync-status offline";
-            showToast("Database connection failed", "error");
+            syncIndicator.innerHTML = "⚠️ Offline"; syncIndicator.className = "sync-status offline";
         });
 
-        // --- SAVE TO CLOUD FUNCTION ---
         function saveToCloud() {
             syncIndicator.innerHTML = "↻ Saving...";
-            db.ref('TradeProDB').set({
-                masterData: masterData,
-                trades: trades,
-                cashFlow: cashFlow
-            }).then(() => {
-                syncIndicator.innerHTML = "☁️ Synced";
-            }).catch(err => {
-                showToast("Error saving data", "error");
-            });
+            db.ref('TradeProDB').set({ masterData: masterData, trades: trades, cashFlow: cashFlow })
+                .then(() => { syncIndicator.innerHTML = "☁️ Synced"; })
+                .catch(err => { showToast("Error saving data", "error"); });
         }
 
-        // --- SERVICE WORKER (For PWA / Install to Home Screen) ---
+        // --- PWA SETUP ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('PWA Service Worker Registered!'))
-                    .catch(err => console.log('PWA SW Error!', err));
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('PWA SW Error!', err));
             });
         }
 
         // --- UTILITIES ---
         function formatMoney(num) {
-            if (isNaN(num)) return "0";
-            return new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2 }).format(num);
+            if (isNaN(num)) return "0"; return new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2 }).format(num);
         }
 
         function showToast(message, type = 'success') {
             let container = document.getElementById('toast-container');
-            let toast = document.createElement('div');
-            toast.className = `toast ${type}`;
+            let toast = document.createElement('div'); toast.className = `toast ${type}`;
             let icon = type === 'success' ? '✓' : '!';
             toast.innerHTML = `<span style="font-weight:bold; color:${type === 'success' ? '#81c995' : '#f28b82'}">${icon}</span> <div>${message}</div>`;
             container.appendChild(toast);
-            setTimeout(() => {
-                toast.style.animation = 'fadeOut 0.2s ease forwards';
-                setTimeout(() => toast.remove(), 200);
-            }, 3000);
+            setTimeout(() => { toast.style.animation = 'fadeOut 0.2s ease forwards'; setTimeout(() => toast.remove(), 200); }, 3000);
         }
+        // --- KEYBOARD SHORTCUTS (+ , - , and ESC) ---
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal').forEach(m => { m.classList.remove('show'); setTimeout(() => m.style.display = 'none', 200); });
+                return;
+            }
+            let activeTag = document.activeElement.tagName;
+            if (activeTag === 'INPUT' || activeTag === 'SELECT' || activeTag === 'TEXTAREA') return;
 
-        // --- MODAL CONTROLS ---
+            if (e.key === '+') { e.preventDefault(); openModal('newTradeModal', 'Buy'); }
+            else if (e.key === '-') { e.preventDefault(); openModal('newTradeModal', 'Sell'); }
+        });
+
+        // --- SMART KEYBOARD CONTROLS (Esc, Enter, +/-) ---
+        document.addEventListener('keydown', function (e) {
+            // 1. ESC to Close Modal
+            if (e.key === 'Escape') {
+                const openModalEl = document.querySelector('.modal.show');
+                if (openModalEl) closeModal(openModalEl.id);
+                return;
+            }
+
+            const activeEl = document.activeElement;
+            const isInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'SELECT' || activeTag === 'TEXTAREA');
+
+            // 2. ENTER to go to Next Field (Tally Style)
+            if (e.key === 'Enter' && isInput) {
+                e.preventDefault(); // Stop default form submit
+                const form = activeEl.closest('form') || activeEl.closest('.modal-content');
+                if (form) {
+                    // Find all focusable inputs/selects and the submit button
+                    const focusables = Array.from(form.querySelectorAll('input:not([type="hidden"]), select, button[type="submit"], .btn-danger'));
+                    const index = focusables.indexOf(activeEl);
+                    if (index > -1 && index < focusables.length - 1) {
+                        focusables[index + 1].focus(); // Focus next field
+                    } else if (index === focusables.length - 1 || activeEl.tagName === 'BUTTON') {
+                        // If it's the last button, trigger click
+                        focusables[index].click();
+                    }
+                }
+                return;
+            }
+
+            // 3. Shortcuts + / - (Only if not typing in an input)
+            if (!isInput) {
+                if (e.key === '+') { e.preventDefault(); openModal('newTradeModal', 'Buy'); }
+                else if (e.key === '-') { e.preventDefault(); openModal('newTradeModal', 'Sell'); }
+            }
+        });
+
+        // --- MODAL CONTROLS & AUTO-FOCUS ---
         function openModal(modalId, param) {
             let modal = document.getElementById(modalId);
             modal.style.display = 'flex';
             void modal.offsetWidth;
             modal.classList.add('show');
+
+            // Defaults
             if (modalId === 'newTradeModal') {
                 document.getElementById('openDate').value = getTodayDDMMYYYY();
                 if (param) document.getElementById('openType').value = param;
             } else if (modalId === 'cashModal') {
                 document.getElementById('cashDate').value = getTodayDDMMYYYY();
             }
+
+            // AUTO-FOCUS FIRST INPUT
+            setTimeout(() => {
+                const firstInput = modal.querySelector('input:not([type="hidden"]), select');
+                if (firstInput) {
+                    firstInput.focus();
+                    // If it's a text input, select the text for quick overwrite
+                    if (firstInput.tagName === 'INPUT') firstInput.select();
+                }
+            }, 100); // 100ms delay to ensure modal animation started
         }
 
         function closeModal(modalId) {
             let modal = document.getElementById(modalId);
-            modal.classList.remove('show');
-            setTimeout(() => modal.style.display = 'none', 200);
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => modal.style.display = 'none', 200);
+            }
         }
 
         function closeOnBackdrop(event, modalElement) {
@@ -926,9 +950,7 @@
 
         function clearAllData() {
             if (confirm("⚠️ WARNING: Cloud se saara data hamesha ke liye delete ho jayega. Continue?")) {
-                db.ref('TradeProDB').remove().then(() => {
-                    showToast("Cloud Data Wiped!");
-                });
+                db.ref('TradeProDB').remove().then(() => { showToast("Cloud Data Wiped!"); });
             }
         }
 
@@ -936,9 +958,7 @@
         document.getElementById('cashForm').addEventListener('submit', function (e) {
             e.preventDefault();
             cashFlow.push({ id: Date.now(), date: parseSmartDate(document.getElementById('cashDate').value), type: document.getElementById('cashType').value, amount: parseFloat(document.getElementById('cashAmount').value), remark: document.getElementById('cashRemark').value || '-' });
-            saveToCloud();
-            document.getElementById('cashAmount').value = ''; document.getElementById('cashRemark').value = '';
-            showToast("Fund entry added to Cloud");
+            saveToCloud(); document.getElementById('cashAmount').value = ''; document.getElementById('cashRemark').value = ''; closeModal('cashModal'); showToast("Fund entry added");
         });
         function deleteCashRecord(id) { if (confirm("Delete entry?")) { cashFlow = cashFlow.filter(c => c.id !== id); saveToCloud(); showToast("Deleted", "error"); } }
 
@@ -946,8 +966,7 @@
         document.getElementById('masterForm').addEventListener('submit', function (e) {
             e.preventDefault(); let name = document.getElementById('commName').value.trim();
             masterData[name] = { size: parseFloat(document.getElementById('commLot').value), pct: parseFloat(document.getElementById('commPct').value) };
-            saveToCloud(); this.reset();
-            showToast("Setting Saved to Cloud");
+            saveToCloud(); this.reset(); showToast("Setting Saved"); document.getElementById('commName').focus(); // Auto focus back to first field
         });
         function renderMasterData() {
             let listDiv = document.getElementById('masterList'); let selectDrop = document.getElementById('tradeCommodity');
@@ -971,10 +990,7 @@
                 commPct: lotInfo.pct, openPrice: parseFloat(document.getElementById('openPrice').value),
                 status: 'Open', closeDate: null, closePrice: null, grossPL: 0, totalBrokerage: 0, netPL: 0
             });
-            saveToCloud();
-            document.getElementById('tradeLots').value = ''; document.getElementById('openPrice').value = '';
-            closeModal('newTradeModal');
-            showToast("Trade Opened in Cloud");
+            saveToCloud(); document.getElementById('tradeLots').value = ''; document.getElementById('openPrice').value = ''; closeModal('newTradeModal'); showToast("Trade Opened");
         });
 
         // --- CLOSE MODAL LOGIC ---
@@ -991,7 +1007,6 @@
             document.getElementById('closeModalTitle').innerText = "Bulk Close Trades";
             document.getElementById('closeModalDesc').innerHTML = `Closing <b style="color:var(--text-main); font-weight:500;">${selectedIds.length}</b> position(s).`;
             document.getElementById('closeTradeIds').value = JSON.stringify(selectedIds);
-            document.getElementById('closeDate').value = getTodayDDMMYYYY();
             document.getElementById('partialCloseSection').style.display = 'none';
             openModal('closeModal');
         }
@@ -1001,7 +1016,6 @@
             document.getElementById('closeModalTitle').innerText = "Exit Position";
             document.getElementById('closeModalDesc').innerHTML = `Closing <b style="color:var(--text-main); font-weight:500;">${t.commodity}</b> (${t.type})`;
             document.getElementById('closeTradeIds').value = JSON.stringify([id]);
-            document.getElementById('closeDate').value = getTodayDDMMYYYY();
 
             let lotInput = document.getElementById('closeLots');
             lotInput.value = t.lots; lotInput.max = t.lots;
@@ -1031,10 +1045,7 @@
                 idsArray.forEach(id => { let t = trades.find(tr => tr.id === id); if (t && t.status === 'Open') closeFullTrade(t, closeDate, closePrice); });
             }
             document.getElementById('selectAllOpen').checked = false;
-            saveToCloud();
-            closeModal('closeModal');
-            document.getElementById('closePrice').value = '';
-            showToast("Trade(s) Closed in Cloud");
+            saveToCloud(); closeModal('closeModal'); document.getElementById('closePrice').value = ''; showToast("Trade(s) Closed");
         }
 
         function closeFullTrade(t, closeDate, closePrice) {
@@ -1044,7 +1055,7 @@
             t.totalBrokerage = turnover * (t.commPct / 100); t.netPL = t.grossPL - t.totalBrokerage;
         }
 
-        function deleteTrade(id) { if (confirm("Kya aap sach mein ye record delete karna chahte hain?")) { trades = trades.filter(t => t.id !== id); saveToCloud(); showToast("Deleted from Cloud", "error"); } }
+        function deleteTrade(id) { if (confirm("Kya aap sach mein ye record delete karna chahte hain?")) { trades = trades.filter(t => t.id !== id); saveToCloud(); showToast("Deleted", "error"); } }
 
         // --- LIVE M2M CALCULATION ---
         function calculateM2M(id, cmpInput) {
@@ -1134,7 +1145,6 @@
             if (currentBalance < 0) { balCard.classList.add('balance-negative'); }
             else { balCard.classList.remove('balance-negative'); }
         }
-
     </script>
 
 </body>
